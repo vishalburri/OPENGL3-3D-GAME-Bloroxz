@@ -2,7 +2,7 @@
 #include <cmath>
 #include <fstream>
 #include <vector>
-
+#include<unistd.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <FTGL/ftgl.h>
 
 using namespace std;
 
@@ -31,7 +32,13 @@ struct GLMatrices {
 	GLuint MatrixID;
 } Matrices;
 
-GLuint programID;
+struct FTGLFont {
+  FTFont* font;
+  GLuint fontMatrixID;
+  GLuint fontColorID;
+} GL3Font;
+
+GLuint programID, fontProgramID, textureProgramID;
 
 /* Function to load Shaders - Use it as it is */
 GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path) {
@@ -210,6 +217,10 @@ bool rectangle_rot_status = true;
 int posx1=0,posy1=0,posx2=0,posy2=6,flag=1,posz1=0,posz2=0;
 int triangle_rotation;
 int disable=0;
+int l8f=0;
+int moves=0;
+int stmove=0;
+int ent=0;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
 void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -236,11 +247,20 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 			case GLFW_KEY_ESCAPE:
 				quit(window);
 				break;
+			case GLFW_KEY_ENTER:
+				ent=1;
+				break;
 			default:
 				break;
 		}
+
 	}
+
 	if(key==GLFW_KEY_RIGHT && action==GLFW_PRESS && !disable){
+		system("mpg123  -vC sound1.mp3 &");
+		moves++;
+		stmove++;
+		if(l8f==0){
 
 		if(posx1==posx2 && posy2>posy1){
 			posx1+=6;
@@ -269,11 +289,22 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 			posx2+=6;
 			//posz2+=6;
 		}
-
+	}
+	else if(l8f==1){
+		posx2+=6;
+	}
+	else if(l8f==2){
+		posx1+=6;
+	}
 
 	}
 
 	else if(key==GLFW_KEY_LEFT && action==GLFW_PRESS && !disable){
+		moves++;
+		stmove++;
+		system("mpg123  -vC sound1.mp3 &");
+
+		if(l8f==0){
 
 		if(posx1==posx2 && posy2>posy1){
 			posx1-=6;
@@ -303,9 +334,20 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 			//posz2+=6;
 		}
 	}
+	else if(l8f==1){
+		posx2-=6;
+	}
+	else if(l8f==2)
+		posx1-=6;
+	}
 
 	else if(key==GLFW_KEY_UP && action==GLFW_PRESS && !disable){
+		moves++;
+		stmove++;
+		system("mpg123  -vC sound1.mp3 &");
 
+		if(l8f==0)
+		{
 		if(posz1==posz2 && posy2>posy1){
 			posz1-=6;
 			posz2-=12;
@@ -333,10 +375,20 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 			posz2-=6;
 			//posz2+=6;
 		}
+			}
+			else if(l8f==1){
+				posz2-=6;
+			}
+			else if(l8f==2)
+				posz1-=6;
 
 	}
 	if(key==GLFW_KEY_DOWN && action==GLFW_PRESS && !disable){
+		moves++;
+		stmove++;
+		system("mpg123  -vC sound1.mp3 &");
 
+		if(l8f==0){
 		if(posz1==posz2 && posy2>posy1){
 			posz1+=6;
 			posz2+=12;
@@ -364,7 +416,11 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 			posz2+=6;
 			//posz2+=6;
 		}
-
+	}
+	else if(l8f==1)
+		posz2+=6;
+	else if(l8f==2)
+		posz1+=6;
 
 	}
 }
@@ -399,7 +455,7 @@ void mouseButton (GLFWwindow* window, int button, int action, int mods)
 			break;
 	}
 }
-
+int dis=0;
 
 /* Executed when window is resized to 'width' and 'height' */
 /* Modify the bounds of the screen here in glm::ortho or Field of View in glm::Perspective */
@@ -424,10 +480,15 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
 	// Matrices.projection = glm::perspective (fov, (GLfloat) fbwidth / (GLfloat) fbheight, 0.1f, 500.0f);
 
 	// Ortho projection for 2D views
+	if(dis==0)
 	Matrices.projection = glm::perspective(fov, (GLfloat) fbwidth / (GLfloat) fbheight, 0.1f, 500.0f);
+	else
+	Matrices.projection = glm::ortho(-100.0f,100.0f,-50.0f,50.0f, 0.1f, 500.0f);
+
+
 }
 
-VAO *triangle, *rectangle,*cuboid[10][15],*cub1,*cub2,*circle,*rectangle1,*rect[10][15],*cuboid1[10][15],*dcub;
+VAO *triangle, *rectangle,*cuboid[10][15],*cub1,*cub2,*circle,*rectangle1,*rect[10][15],*level[7],*cuboid1[10][15],*dcub,*dcu,*circle1,*dcub1,*dcub2,*dcub3,*dcub4,*dcub5;
 
 // Creates the triangle object used in this sample code
 void createTriangle ()
@@ -464,8 +525,17 @@ void createRectangle ()
 		-1.2, 1,0, // vertex 4
 		-1.2,-1,0  // vertex 1
 	};
+	GLfloat display [] = {
+		0,0,0, // vertex 1
+		12,0,0, // vertex 2
+		12, 2,0, // vertex 3
 
-	static const GLfloat color_buffer_data [] = {
+		12, 2,0, // vertex 3
+		0, 2,0, // vertex 4
+		0,0,0 
+	};
+
+	 GLfloat color_buffer_data [] = {
 		0,0,0, // color 1
 		0,0,0, // color 2
 		0,0,0, // color 3
@@ -474,14 +544,26 @@ void createRectangle ()
 		0,0,0, // color 4
 		0,0,0  // color 1
 	};
+	GLfloat colordisplay [] = {
+		1,1,1,
+		1,1,1,
+		1,1,1,
+		1,1,1,
+		1,1,1,
+		1,1,1
+			// color 1
+	};
 
 	// create3DObject creates and returns a handle to a VAO that can be used later
 	rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
-	rectangle1 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+	rectangle1 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, colordisplay, GL_FILL);
 	for(int i=0;i<10;i++){
 		for(int j=0;j<15;j++)
 	rect[i][j] = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
 	}
+	for(int i=0;i<7;i++)
+		level[i]=create3DObject(GL_TRIANGLES, 6, display, colordisplay, GL_FILL);
+
 
 }
 float posy[10][10];
@@ -490,6 +572,11 @@ void level1();
 void level2();
 void level4();
 void level6();
+void level7();
+void level8();
+void level9();
+
+
 
 
 void createCircle()
@@ -508,6 +595,7 @@ void createCircle()
 		vertex_buffer_data[9*i+8]=0;
 	}
 	GLfloat color_buffer_data [360*9];
+	GLfloat color_buffer_data1 [360*9];
 
 	for (int i = 0; i<360*9 ; i+=3)
 	{
@@ -515,7 +603,15 @@ void createCircle()
 		color_buffer_data[i+1]=0;
 		color_buffer_data[i+2]=0;
 	}
+	for (int i = 0; i<360*9 ; i+=3)
+	{
+		color_buffer_data1[i]=0;
+		color_buffer_data1[i+1]=1;
+		color_buffer_data1[i+2]=0;
+	}
 	circle = create3DObject(GL_TRIANGLES,360*3,vertex_buffer_data,color_buffer_data,GL_FILL);
+	circle1 = create3DObject(GL_TRIANGLES,360*3,vertex_buffer_data,color_buffer_data1,GL_FILL);
+
 }
 void level3();
 void createCuboid(){
@@ -560,21 +656,139 @@ void createCuboid(){
 	GLfloat color_buffer_data1[12*3*3];
 	GLfloat color_buffer_data2[12*3*3];
 	GLfloat color_buffer_data3[12*3*3];
+	GLfloat color_buffer_data4[12*3*3];
+	GLfloat color_buffer_data5[12*3*3];
+	GLfloat color_buffer_data6[12*3*3];
+	GLfloat color_buffer_data7[12*3*3];
+	GLfloat color_buffer_data8[12*3*3];
+
+
 
 	for (int v = 0; v < 12*3 ; v++){
-		color_buffer_data1[3*v+0] = 1;
-		color_buffer_data1[3*v+1] = 0.5;
-		color_buffer_data1[3*v+2] = 0.6;
+		if(vertex_buffer_data[3*v+0]==-2 && vertex_buffer_data[3*v+1]==-2 &&vertex_buffer_data[3*v+2]==-2){
+		color_buffer_data1[3*v+0] = 0.9;
+		color_buffer_data1[3*v+1] = 0.9;
+		color_buffer_data1[3*v+2] = 0.9;
+		}
+		if(vertex_buffer_data[3*v+0]==2 && vertex_buffer_data[3*v+1]==2 && vertex_buffer_data[3*v+2]==2 ){
+		color_buffer_data1[3*v+0] = 0;
+		color_buffer_data1[3*v+1] = 0;
+		color_buffer_data1[3*v+2] = 0;
+		}
+		else{
+		color_buffer_data1[3*v+0] = 0.9;
+		color_buffer_data1[3*v+1] = 0.9;
+		color_buffer_data1[3*v+2] = 0.9;
+		}
 	}
 	for (int v = 0; v < 12*3 ; v++){
-		color_buffer_data2[3*v+0] = 0.5;
-		color_buffer_data2[3*v+1] = 0.5;
-		color_buffer_data2[3*v+2] = 0.6;
+		if(vertex_buffer_data[3*v+0]==-2 && vertex_buffer_data[3*v+1]==-2 &&vertex_buffer_data[3*v+2]==-2){
+		color_buffer_data2[3*v+0] = 0.9;
+		color_buffer_data2[3*v+1] = 0.9;
+		color_buffer_data2[3*v+2] = 0.9;
+		}
+		if(vertex_buffer_data[3*v+0]==2 && vertex_buffer_data[3*v+1]==2 && vertex_buffer_data[3*v+2]==2){
+		color_buffer_data2[3*v+0] = 0;
+		color_buffer_data2[3*v+1] = 0;
+		color_buffer_data2[3*v+2] = 0;
+		}
+		else{
+		color_buffer_data2[3*v+0] = 0.9;
+		color_buffer_data2[3*v+1] = 0.9;
+		color_buffer_data2[3*v+2] = 0.9;
+		}
 	}
 	for (int v = 0; v < 12*3 ; v++){
-		color_buffer_data3[3*v+0] = 0;
-		color_buffer_data3[3*v+1] = 0;
+
+		if(vertex_buffer_data[3*v+0]==-2 && vertex_buffer_data[3*v+1]==-2 &&vertex_buffer_data[3*v+2]==-2){
+		color_buffer_data2[3*v+0] = 0.7;
+		color_buffer_data2[3*v+1] = 0.3;
+		color_buffer_data2[3*v+2] = 0.3;
+		}
+		if(vertex_buffer_data[3*v+0]==2 && vertex_buffer_data[3*v+1]==2 && vertex_buffer_data[3*v+2]==2){
+		color_buffer_data3[3*v+0] = 0.7;
+		color_buffer_data3[3*v+1] = 0.3;
+		color_buffer_data3[3*v+2] = 0.3;
+		}
+		else{
+		color_buffer_data3[3*v+0] = 1;
+		color_buffer_data3[3*v+1] = 0.7;
 		color_buffer_data3[3*v+2] = 0;
+		}
+	}
+	for (int v = 0; v < 12*3 ; v++){
+		if(vertex_buffer_data[3*v+0]==-2 && vertex_buffer_data[3*v+1]==-2 &&vertex_buffer_data[3*v+2]==-2){
+		color_buffer_data4[3*v+0] = 0;
+		color_buffer_data4[3*v+1] = 1;
+		color_buffer_data4[3*v+2] = 0;
+		}
+		if(vertex_buffer_data[3*v+0]==2 && vertex_buffer_data[3*v+1]==2 && vertex_buffer_data[3*v+2]==2){
+		color_buffer_data4[3*v+0] = 0;
+		color_buffer_data4[3*v+1] = 1;
+		color_buffer_data4[3*v+2] = 0;
+		}
+		else{
+		color_buffer_data4[3*v+0] = 1;
+		color_buffer_data4[3*v+1] = 1;
+		color_buffer_data4[3*v+2] = 1;
+		}
+	}
+	for (int v = 0; v < 12*3 ; v++){
+		if(vertex_buffer_data[3*v+0]==-2 && vertex_buffer_data[3*v+1]==-2 &&vertex_buffer_data[3*v+2]==-2){
+		color_buffer_data5[3*v+0] = 1;
+		color_buffer_data5[3*v+1] = 0;
+		color_buffer_data5[3*v+2] = 0;
+		}
+		if(vertex_buffer_data[3*v+0]==2 && vertex_buffer_data[3*v+1]==2 && vertex_buffer_data[3*v+2]==2){
+		color_buffer_data5[3*v+0] = 1;
+		color_buffer_data5[3*v+1] = 0;
+		color_buffer_data5[3*v+2] = 0;
+		}
+		else{
+		color_buffer_data5[3*v+0] = 1;
+		color_buffer_data5[3*v+1] = 1;
+		color_buffer_data5[3*v+2] = 1;
+		}
+	}
+	for (int v = 0; v < 12*3 ; v++){
+		color_buffer_data6[3*v+0] = 0;
+		color_buffer_data6[3*v+1] = 0;
+		color_buffer_data6[3*v+2] = 0;
+	}
+	for (int v = 0; v < 12*3 ; v++){
+
+		if(vertex_buffer_data[3*v+0]==-2 && vertex_buffer_data[3*v+1]==-2 &&vertex_buffer_data[3*v+2]==-2){
+		color_buffer_data7[3*v+0] = 1;
+		color_buffer_data7[3*v+1] = 0.9;
+		color_buffer_data7[3*v+2] = 0;
+		}
+		if(vertex_buffer_data[3*v+0]==2 && vertex_buffer_data[3*v+1]==2 && vertex_buffer_data[3*v+2]==2){
+		color_buffer_data7[3*v+0] = 1;
+		color_buffer_data7[3*v+1] = 0.6;
+		color_buffer_data7[3*v+2] = 0;
+		}
+		else{
+		color_buffer_data7[3*v+0] = 1;
+		color_buffer_data7[3*v+1] = 1;
+		color_buffer_data7[3*v+2] = 1;
+		}
+	}
+	for (int v = 0; v < 12*3 ; v++){
+		if(vertex_buffer_data[3*v+0]==-2 && vertex_buffer_data[3*v+1]==-2 &&vertex_buffer_data[3*v+2]==-2){
+		color_buffer_data8[3*v+0] = 1;
+		color_buffer_data8[3*v+1] = 0.9;
+		color_buffer_data8[3*v+2] = 0;
+		}
+		if(vertex_buffer_data[3*v+0]==2 && vertex_buffer_data[3*v+1]==2 && vertex_buffer_data[3*v+2]==2){
+		color_buffer_data8[3*v+0] = 1;
+		color_buffer_data8[3*v+1] = 0.6;
+		color_buffer_data8[3*v+2] = 0;
+		}
+		else{
+		color_buffer_data8[3*v+0] = 1;
+		color_buffer_data8[3*v+1] = 1;
+		color_buffer_data8[3*v+2] = 1;
+		}
 	}
 	for(int i=0;i<10;i++)
 		for(int j=0;j<15;j++){
@@ -586,7 +800,17 @@ void createCuboid(){
 
 			cub1= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data3, GL_FILL);
 			cub2= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data3, GL_FILL);
-			dcub= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data3, GL_FILL);
+			dcu= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data1, GL_FILL);
+
+			dcub= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data5, GL_FILL);
+			dcub1= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data4, GL_FILL);
+			dcub2= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data5, GL_FILL);
+			dcub3= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data6, GL_FILL);
+			dcub4= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data7, GL_FILL);
+			dcub5= create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data8, GL_FILL);
+
+
+
 
 
 		}
@@ -648,6 +872,7 @@ int l2tog=0,l2f=0;
 int l2togl=0,l2r=0;
 int l3=0,r3=0;
 int r4=0;
+int blo=0;
 
 void level2(){
 	for(int i=0;i<10;i++)
@@ -750,10 +975,18 @@ void level4(){
 		
 		a[8][6]=4;
 		a[8][13]=5;
-		a[6][8]=6;
+		a[6][8]=1;
 		a[6][9]=6;
-		a[7][8]=6;
+		a[7][8]=1;
 		a[7][9]=6;
+		for(int i=1;i<3;i++)
+			for(int j=3;j<10;j++)
+				a[i][j]=6;
+			for(int i=6;i<10;i++)
+			for(int j=9;j<15;j++)
+				a[i][j]=6;
+		a[8][13]=5;
+
 
 }
 void level6(){
@@ -802,15 +1035,97 @@ void level6(){
 	for(int j=10;j<15;j++)
 		a[9][j]=0;
 }
+void level7(){
+	for(int i=0;i<10;i++){
+		for(int j=0;j<15;j++)
+			a[i][j]=1;
+	}
+	int i=0;
+	for(int j=0;j<15;j++)
+		a[i][j]=0;
+	i=9;
+	for(int j=0;j<15;j++)
+		a[i][j]=0;
+	for(int i=1;i<3;i++)
+		for(int j=0;j<8;j++)
+		a[i][j]=0;
+	for(int i=1;i<3;i++)
+		for(int j=12;j<15;j++)
+		a[i][j]=0;
+	i=3;
+		for(int j=3;j<8;j++)
+		a[i][j]=0;
+	a[3][9]=0;
+	a[3][10]=0;
+	a[4][9]=0;
+	for(int i=4;i<7;i++)
+		for(int j=10;j<12;j++)
+		a[i][j]=0;
+	for(int i=5;i<8;i++)
+		for(int j=3;j<7;j++)
+		a[i][j]=0;
+	for(int i=7;i<9;i++)
+		for(int j=9;j<15;j++)
+		a[i][j]=0;
+	a[4][13]=4;
+	a[5][9]=2;
 
+}
+void level8(){
+	for(int i=0;i<10;i++){
+		for(int j=0;j<15;j++)
+			a[i][j]=0;
+	}
+	for(int i=4;i<7;i++){
+		for(int j=0;j<6;j++)
+			a[i][j]=1;
+	}
+	for(int i=1;i<10;i++){
+		for(int j=9;j<12;j++)
+			a[i][j]=1;
+	}
+	for(int i=4;i<7;i++){
+		for(int j=12;j<15;j++)
+			a[i][j]=1;
+	}
+	a[5][13]=4;
+	a[5][4]=7;
+l8f=0;
+}
+int sound=0;
+void level9(){
+	for(int i=0;i<10;i++){
+		for(int j=0;j<15;j++)
+			a[i][j]=0;
+	}
+	for(int i=3;i<6;i++){
+		for(int j=0;j<4;j++)
+			a[i][j]=1;
+	}
+	for(int i=3;i<6;i++){
+		for(int j=11;j<15;j++)
+			a[i][j]=1;
+	}
+	for(int i=5;i<6;i++){
+		for(int j=4;j<15;j++)
+			a[i][j]=1;
+	}
+	a[3][7]=1;
+	a[4][7]=1;
+	a[6][6]=1,a[7][6]=1,a[6][8]=1,a[7][8]=1,a[6][7]=4;
+	a[7][7]=1;
+	a[4][13]=7;
+
+}
 float spo;
-int l6=0,r6=0;
+
+int l6=0,r6=0,l7=0,r7=0,r8=0,r9=0;
 void init(){
 	for(int i=0;i<15;i++)
 		for(int j=0;j<10;j++)
 			posy[i][j]=-60;
 
-
+sound=0;
 	//posy[0][0]=0;
 	spo=60;
 	posx1=0;
@@ -821,10 +1136,51 @@ void init(){
 	posy2=6;
 	disable=0;
 
+dis=1;
+stmove=0;
+
+
 }
+
 double current_time,utime=glfwGetTime();
 int flagdown=0;
 
+glm::vec3 getRGBfromHue (int hue)
+{
+  float intp;
+  float fracp = modff(hue/60.0, &intp);
+  float x = 1.0 - abs((float)((int)intp%2)+fracp-1.0);
+
+  if (hue < 60)
+    return glm::vec3(1,x,0);
+  else if (hue < 120)
+    return glm::vec3(x,1,0);
+  else if (hue < 180)
+    return glm::vec3(0,1,x);
+  else if (hue < 240)
+    return glm::vec3(0,x,1);
+  else if (hue < 300)
+    return glm::vec3(x,0,1);
+  else
+    return glm::vec3(1,0,x);
+
+}
+
+
+void display_string(float x,float y,char *str,float fontScaleValue){
+	glm::vec3 fontColor = glm::vec3(0,0,0);
+	Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0));
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText = glm::translate(glm::vec3(x,y,0));
+	glm::mat4 scaleText = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText * scaleText);
+	glm::mat4 MVP = Matrices.projection * Matrices.view * Matrices.model;
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
+	GL3Font.font->Render(str);
+
+}
+double utime1;
 void draw ()
 {
 
@@ -842,11 +1198,12 @@ void draw ()
 	// Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
 	glm::vec3 up (0, 1, 0);
 
-	// Compute Camera matrix (view)
-	// Matrices.view = glm::lookAt( eye, target, up ); // Rotating Camera for 3D
-	//  Don't change unless you are sure!!
-	Matrices.view = glm::lookAt(glm::vec3(-30,70,60), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
 
+	if(dis==0)
+	Matrices.view = glm::lookAt(glm::vec3(-30,70,60), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+	if(dis==1 || blo==0)
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); 
+	
 	// Compute ViewProject matrix as view/camera might not be changed for this frame (basic scenario)
 	//  Don't change unless you are sure!!
 	glm::mat4 VP = Matrices.projection * Matrices.view;
@@ -854,7 +1211,203 @@ void draw ()
 	// Send our transformation to the currently bound shader, in the "MVP" uniform
 	// For each model you render, since the MVP will be different (at least the M part)
 	//  Don't change unless you are sure!!
-	glm::mat4 MVP;	// MVP = Projection * View * Model
+	glm::mat4 MVP;	
+
+	// Compute Camera matrix (view)
+	// Matrices.view = glm::lookAt( eye, target, up ); // Rotating Camera for 3D
+	//  Don't change unless you are sure!!
+	if(blo==0){
+
+		float fontScaleValue = 36;
+int fontScale=150;
+	glm::vec3 fontColor1= getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+
+	char level_strl[30],level_strl1[30];
+	char level_strl2[30],level_strl3[30];
+
+	sprintf(level_strl,"BLOROXZ");
+	sprintf(level_strl1,"START NEW GAME");
+	sprintf(level_strl2,"LOAD STAGE");
+
+
+
+
+
+
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); 
+	glUseProgram(programID);
+	Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle2 = glm::translate (glm::vec3(-5,-8,0)); // glTranslatef
+				glm::mat4 rotateTriangle2 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle2 = glm::scale (glm::vec3(100.0f, 100.0f, 1.0f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform2 = translateTriangle2 * rotateTriangle2*scaleTriangle2;
+				Matrices.model *= triangleTransform2; 
+				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(rectangle);
+// Fixed camera for 2D (ortho) in XY plane
+Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(-3,-8,0)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(15.0f, 4.0f, 1.0f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(rectangle1);
+
+
+				Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle3 = glm::translate (glm::vec3(-3,-18,0)); // glTranslatef
+				glm::mat4 rotateTriangle3 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle3 = glm::scale (glm::vec3(15.0f, 4.0f, 1.0f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform3 = translateTriangle3 * rotateTriangle3*scaleTriangle3;
+				Matrices.model *= triangleTransform3; 
+				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(rectangle1);
+	glUseProgram(fontProgramID);
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText = glm::translate(glm::vec3(-40,4,0));
+	glm::mat4 scaleText = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText * scaleText);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor1[0]);
+	GL3Font.font->Render(level_strl);
+	int fontScale1=5;
+	fontScaleValue=8;
+	glm::vec3 fontColor= getRGBfromHue(fontScale1);
+
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText1 = glm::translate(glm::vec3(-20,-10,0));
+	glm::mat4 scaleText1 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText1 * scaleText1);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
+	GL3Font.font->Render(level_strl1);
+
+	glm::vec3 fontColor2= getRGBfromHue(fontScale1);
+
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText2 = glm::translate(glm::vec3(-15,-20,0));
+	glm::mat4 scaleText2 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText2 * scaleText2);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor2[0]);
+	GL3Font.font->Render(level_strl2);
+
+
+		
+
+	//double ctime=glfwGetTime();
+	if(ent==1){
+		blo=1;
+		
+		utime=glfwGetTime();
+		utime1=glfwGetTime();
+
+	}
+
+	}
+	if(dis==0 && blo==1){
+		int ti=glfwGetTime();
+		int ti1,ti2,ti3;
+		ti-=utime1;
+		ti1=ti/3600;
+		ti2=ti/60;
+		ti3=(ti-(ti2*60));
+float fontScaleValue = 12 ;
+int fontScale=280;
+	glm::vec3 fontColor= getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+
+	char level_strl[30];
+	sprintf(level_strl,"TIME: %d:%d:%d",ti1,ti2,ti3);
+
+
+
+
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText = glm::translate(glm::vec3(48,42,0));
+	glm::mat4 scaleText = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText * scaleText);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
+	GL3Font.font->Render(level_strl);
+
+	}
+	
+
+
+	if(dis==1 && blo==1){
+double ctime=glfwGetTime();
+		if(ctime - utime > 2){
+			utime=glfwGetTime();
+			dis=0;
+
+		}
+
+	// Send our transformation to the currently bound shader, in the "MVP" uniform
+	// For each model you render, since the MVP will be different (at least the M part)
+	//  Don't change unless you are sure!!
+		int fontScale=1;
+float fontScaleValue = 36 ;
+	glm::vec3 fontColor = getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+
+	char level_str[30];
+	sprintf(level_str,"LEVEL: %d",flag);
+	
+
+	Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText = glm::translate(glm::vec3(-40,5,0));
+	glm::mat4 scaleText = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText * scaleText);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
+	GL3Font.font->Render(level_str);
+
+
+
+	}
+	else if(dis==0 && blo==1){
+	glUseProgram (programID);
+
+
 
 	// Load identity to model matrix
 	for(int i=0;i<10;i++){
@@ -867,6 +1420,59 @@ void draw ()
 				posy[i][j]+=((i+j)/1.5);
 				if(posy[i][j]>0)
 					posy[i][j]=0;
+				if(flag==4 && a[i][j]==6){
+
+
+
+					if((i+j)%2==0){
+						Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0+posy[i][j], 0.0f+(i+1)*6-30)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = VP * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(dcub4);
+			}
+
+
+			else
+			{
+				Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0+posy[i][j], 0.0f+(i+1)*6-30)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = VP * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(dcub5);
+			}
+				Matrices.model = glm::mat4(1.0f);
+
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(13+1)*6-30, 0.0f+posy[i][j], 0.0f+(8+1)*6-30)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslate
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = VP * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(dcu);
+
+				}
+				else{
 				glm::mat4 translateTriangle = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+posy[i][j], 0.0f+(i+1)*6-30)); // glTranslatef
 				glm::mat4 rotateTriangle = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
 				glm::mat4 scaleTriangle = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslatef
@@ -877,23 +1483,8 @@ void draw ()
 
 				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 				draw3DObject(cuboid[i][j]);
-				
-				if(flag==4 ){
-					Matrices.model = glm::mat4(1.0f);
-
-glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(13+1)*6-30, 0.0f+posy[i][j], 0.0f+(8+1)*6-30)); // glTranslatef
-				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
-				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslatef
-				// rotate about vector (1,0,0)
-				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
-				Matrices.model *= triangleTransform1; 
-				MVP = VP * Matrices.model; // MVP = p * V * M
-
-				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-				draw3DObject(dcub);
-
 				}
+				
 	/*			Matrices.model = glm::mat4(1.0f);
 
 glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+posy[i][j], 0.0f+(i+1)*6-30)); // glTranslatef
@@ -916,13 +1507,13 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 	if(spo<0)
 		spo=0;
 	int l1,r1,l2,r2;
-	l1=(-18+posx1+l3+l6)/6 +4;
-	r1=(-6+posz1+r3+r6)/6+4;
-	l2=(-18+posx2+l3+l6)/6+4;
-	r2=(-6+posz2+r3+r6)/6+4;
+	l1=(-18+posx1+l3+l6+l7)/6 +4;
+	r1=(-6+posz1+r3+r6+r7+r8+r9)/6+4;
+	l2=(-18+posx2+l3+l6+l7)/6+4;
+	r2=(-6+posz2+r3+r6+r7+r8+r9)/6+4;
 
 	Matrices.model = glm::mat4(1.0f);
-	glm::mat4 translateTriangle1 = glm::translate (glm::vec3(-18.0f+posx1+l3+l6, 3.0f+posy1+spo, -6.0f+posz1+r3+r4+r6)); // glTranslatef
+	glm::mat4 translateTriangle1 = glm::translate (glm::vec3(-18.0f+posx1+l3+l6+l7, 3.0f+posy1+spo, -6.0f+posz1+r3+r4+r6+r7+r8+r9)); // glTranslatef
 
 	glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,-3));
 
@@ -937,7 +1528,7 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 	draw3DObject(cub1);
 
 	Matrices.model = glm::mat4(1.0f);
-	glm::mat4 translateTriangle2 = glm::translate (glm::vec3(-18.0f+posx2+l3+l6, 3.0f+posy2+spo, -6.0f+posz2+r3+r4+r6)); // glTranslatef
+	glm::mat4 translateTriangle2 = glm::translate (glm::vec3(-18.0f+posx2+l3+l6+l7, 3.0f+posy2+spo, -6.0f+posz2+r3+r4+r6+r7+r8+r9)); // glTranslatef
 
 	glm::mat4 rotateTriangle2 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,-3));
 
@@ -951,6 +1542,8 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 
 	draw3DObject(cub2);
 	if(a[r1][l1]==0 || a[r2][l2]==0 || r1<0 ||l1<0||r2<0||l2<0){
+		system("mpg123  -vC star.mp3 &");
+
 		double ctime=glfwGetTime();
 		if(ctime-utime>0.05){
 			utime=glfwGetTime();
@@ -959,6 +1552,7 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 			disable=1;
 		}
 		if(posy1<-15){
+			moves-=stmove;
 		init();
 		if(flag==1){
 			level1();
@@ -971,17 +1565,21 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 			level4();
 		if(flag==5)
 			level6();
+		if(flag==6)
+			level7();
+		if(flag==7)
+			level8();
+		if(flag==8)
+			level9();
 	}
 
 	}
-	if(flag==4 && a[6][8]==0){
-		a[6][8]=6;
-		a[6][9]=6;
-		a[7][8]=6;
-		a[7][9]=6;
-
-	}
+	
 	if(a[r1][l1]==4 && a[r2][l2]==4){
+		if(sound==0){
+		system("mpg123  -vC finish.mp3 &");
+		sound=1;
+	}
 		double ctime=glfwGetTime();
 		if(ctime-utime>0.05){
 			utime=glfwGetTime();
@@ -1006,62 +1604,74 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 			l6=-6;
 			r6=-18;
 		}
+		if(flag==6){
+			level7();
+			l7=6;
+			r7=6;
 		}
+		if(flag==7){
+			level8();
+			r8=6;
+		}
+		if(flag==8){
+			level9();
+			r9=-6;
+		}
+		}
+	}
+	if(flag==4){
+		for(int i=1;i<3;i++)
+			for(int j=3;j<10;j++)
+				a[i][j]=6;
+			for(int i=6;i<10;i++)
+			for(int j=9;j<15;j++)
+				a[i][j]=6;
+		a[8][13]=5;
+	
+
+
 	}
 	
 	if(flag==2){
 		Matrices.model = glm::mat4(1.0f);
-		glm::mat4 translateTriangle2 = glm::translate (glm::vec3(-12.5f, 3.0f, 2.0f)); // glTranslatef
 
-		glm::mat4 rotateTriangle2 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(2+1)*6-30, 0.0f, 0.0f+(4+1)*6-30)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = VP * Matrices.model; // MVP = p * V * M
 
-		glm::mat4 scaleTriangle2 = glm::scale (glm::vec3(1.2f, 1.2f, 1.2f)); // glTranslatef
-		// rotate about vector (1,0,0)
-		glm::mat4 triangleTransform2 = translateTriangle2*rotateTriangle2 * scaleTriangle2;
-		Matrices.model *= triangleTransform2; 
-		MVP = VP * Matrices.model; // MVP = p * V * M
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-		glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+				draw3DObject(dcub2);
 
-		draw3DObject(circle);
+				Matrices.model = glm::mat4(1.0f);
 
-		Matrices.model = glm::mat4(1.0f);
-		glm::mat4 translateTriangle3 = glm::translate (glm::vec3(22.5f, 2.5f, -4.0f)); // glTranslatef
+glm::mat4 translateTriangle2 = glm::translate (glm::vec3(0.0f+(8+1)*6-30, 0.0f, 0.0f+(3+1)*6-30)); // glTranslatef
+				glm::mat4 rotateTriangle2 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle2 = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform2 = translateTriangle2 * rotateTriangle2*scaleTriangle2;
+				Matrices.model *= triangleTransform2; 
+				MVP = VP * Matrices.model; // MVP = p * V * M
 
-		glm::mat4 rotateTriangle3 = glm::rotate((float)(-45*M_PI/180.0f), glm::vec3(0,0,1));
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-		glm::mat4 scaleTriangle3 = glm::scale (glm::vec3(2.4f, 0.3f, 1.2f)); // glTranslatef
-		// rotate about vector (1,0,0)
-		glm::mat4 triangleTransform3 = translateTriangle3*rotateTriangle3 * scaleTriangle3;
-		Matrices.model *= triangleTransform3; 
-		MVP = VP * Matrices.model; // MVP = p * V * M
-
-		glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-		draw3DObject(rectangle);
-
-		Matrices.model = glm::mat4(1.0f);
-		glm::mat4 translateTriangle4 = glm::translate (glm::vec3(22.5f, 2.5f, -4.0f)); // glTranslatef
-
-		glm::mat4 rotateTriangle4 = glm::rotate((float)(90*M_PI/180.0f), glm::vec3(0,0,1));
-
-		glm::mat4 scaleTriangle4 = glm::scale (glm::vec3(2.4f, 0.3f, 1.2f)); // glTranslatef
-		// rotate about vector (1,0,0)
-		glm::mat4 triangleTransform4 = translateTriangle4*rotateTriangle4 * scaleTriangle4;
-		Matrices.model *= triangleTransform4; 
-		MVP = VP * Matrices.model; // MVP = p * V * M
-
-		glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-		draw3DObject(rectangle1);
+				draw3DObject(dcub3);
 
 		if(a[r1][l1]==2 || a[r2][l2]==2){
 		if(a[6][4]==0 && l2tog==0){
+		system("mpg123  -vC star.mp3 &");
+
 			a[6][4]=1;
 			a[6][5]=1;
 			l2f=1;
 		}
 		else if(a[6][4]==1 && l2tog==1){
+		system("mpg123  -vC star.mp3 &");
+
 			a[6][4]=0;
 			a[6][5]=0;
 			l2f=0;
@@ -1075,11 +1685,15 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 		}
 		if(a[r1][l1]==3 && a[r2][l2]==3){
 		if(a[6][10]==0 && l2togl==0){
+		system("mpg123  -vC star.mp3 &");
+
 			a[6][10]=1;
 			a[6][11]=1;
 			l2r=1;
 		}
 		else if(a[6][10]==1  && l2togl==1){
+		system("mpg123  -vC star.mp3 &");
+
 			a[6][10]=0;
 			a[6][11]=0;
 			l2r=0;
@@ -1092,32 +1706,118 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 			l2togl=0;
 		}
 	}
-	if(flag==1){
-		printf("%d %d\n",a[r1][l1],a[r2][l2]);
-		if(a[r1][l1]==5 && a[r2][l2]==5){
-			//printf("es");
-		a[6][8]=1;
-		a[6][9]=1;
-		a[7][8]=1;
-		a[7][9]=1;
-		}
-		else if((a[r1][l1]==6 || a[r2][l2]==6)){
-		a[6][8]=0;
-		a[6][9]=0;
-		a[7][8]=0;
-		a[7][9]=0;
-
+	if(flag==4){
+		
+		
+		 if((a[r1][l1]==6 && a[r2][l2]==6 && posy1!=posy2)){
+		a[r1][l1]=0;
 	}
 
 	}
-
+if(flag==6){
 	
+Matrices.model = glm::mat4(1.0f);
+
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(9+1)*6-30, 0.0f, 0.0f+(5+1)*6-30)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = VP * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(dcub);
+				//printf("%d %d\n",a[r1+1][l1+1],a[r2+1][l2+1]);
+		if(a[r1][l1]==2 && a[r2][l2]==2){
+			a[7][3]=1;
+	}
+}
+	if(flag==7){
+		Matrices.model = glm::mat4(1.0f);
+
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(4+1)*6-30, 0.0f, 0.0f+(5+1)*6-30)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = VP * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(dcub1);
+				if(a[r1][l1]==7 && a[r2][l2]==7){
+			posx1+=36;
+			posx2+=36;
+			posy1-=6;
+			posz1+=18;
+			posz2-=18;
+			l8f=1;
+	}
+	if(r1==5 && l1==11 && r2==5 && l2==12)
+		l8f=0;
+	else if(r2==5 && l2==12)
+		l8f=2;
+	}
+
+	if(flag==8){
+		Matrices.model = glm::mat4(1.0f);
+
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(13+1)*6-30, 0.0f, 0.0f+(4+1)*6-30)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(1.5f, 0.4f, 1.5f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = VP * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(dcub1);
+				if(a[r1][l1]==7 && a[r2][l2]==7){
+			posx1-=6;
+			posx2-=66;
+			posy2-=6;
+			//posz1+=18;
+			//posz2-=18;
+			l8f=1;
+	}
+	if(r1==5 && l1==7 && r2==4 && l2==7)
+		l8f=0;
+	else if(r2==4 && l2==7)
+		l8f=2;
+	}
+
+float fontScaleValue = 10 ;
+static int fontScale=280;
+	glm::vec3 fontColor = getRGBfromHue (fontScale);
+
+	glUseProgram(fontProgramID);
+
+
+	char level_str[30];
+	sprintf(level_str,"MOVES: %d",moves);
+	Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText = glm::translate(glm::vec3(50,35,0));
+	glm::mat4 scaleText = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText * scaleText);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
+	GL3Font.font->Render(level_str);
+
+	//display_string(50,35,level_str,fontScaleValue);
 
 
 	// Pop matrix to undo transformations till last push matrix instead of recomputing model matrix
 	// glPopMatrix ();
-
-
+}
 	// Increment angles
 	float increments = 1;
 
@@ -1198,6 +1898,34 @@ void initGL (GLFWwindow* window, int width, int height)
 
 	glEnable (GL_DEPTH_TEST);
 	glDepthFunc (GL_LEQUAL);
+
+
+
+const char* fontfile = "monaco.ttf";
+	GL3Font.font = new FTExtrudeFont(fontfile); // 3D extrude style rendering
+
+	if(GL3Font.font->Error())
+	{
+		cout << "Error: Could not load font `" << fontfile << "'" << endl;
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+
+	// Create and compile our GLSL program from the font shaders
+	fontProgramID = LoadShaders( "fontrender.vert", "fontrender.frag" );
+	GLint fontVertexCoordAttrib, fontVertexNormalAttrib, fontVertexOffsetUniform;
+	fontVertexCoordAttrib = glGetAttribLocation(fontProgramID, "vertexPosition");
+	fontVertexNormalAttrib = glGetAttribLocation(fontProgramID, "vertexNormal");
+	fontVertexOffsetUniform = glGetUniformLocation(fontProgramID, "pen");
+	GL3Font.fontMatrixID = glGetUniformLocation(fontProgramID, "MVP");
+	GL3Font.fontColorID = glGetUniformLocation(fontProgramID, "fontColor");
+
+	GL3Font.font->ShaderLocations(fontVertexCoordAttrib, fontVertexNormalAttrib, fontVertexOffsetUniform);
+	GL3Font.font->FaceSize(1);
+	GL3Font.font->Depth(0);
+	GL3Font.font->Outset(0, 0);
+GL3Font.font->CharMap(ft_encoding_unicode);
+
 
 	cout << "VENDOR: " << glGetString(GL_VENDOR) << endl;
 	cout << "RENDERER: " << glGetString(GL_RENDERER) << endl;
