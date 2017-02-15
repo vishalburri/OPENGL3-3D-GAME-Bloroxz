@@ -221,6 +221,15 @@ int l8f=0;
 int moves=0;
 int stmove=0;
 int ent=0;
+int enter=0;
+char ab[2];
+int blo=0;
+int lmouse=0;
+int pass=0;
+int view=0;
+int menu=0;
+int soff=0;
+
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
 void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -255,8 +264,45 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 		}
 
 	}
+	if(pass==1 && blo==0){
+		if(key==GLFW_KEY_1)
+	sprintf(ab,"1");
+
+		if(key==GLFW_KEY_2)
+	sprintf(ab,"2");
+
+		if(key==GLFW_KEY_3)
+	sprintf(ab,"3");
+
+		if(key==GLFW_KEY_4)
+	sprintf(ab,"4");
+
+		if(key==GLFW_KEY_5)
+	sprintf(ab,"5");
+		if(key==GLFW_KEY_6)
+	sprintf(ab,"6");
+		if(key==GLFW_KEY_7)
+	sprintf(ab,"7");
+		if(key==GLFW_KEY_8)
+	sprintf(ab,"8");
+		if(key==GLFW_KEY_9)
+	sprintf(ab,"9");
+
+	}
+	if(key==GLFW_KEY_O)
+		view=0;
+	if(key==GLFW_KEY_B)
+		view=1;
+	if(key==GLFW_KEY_T)
+		view=2;
+	if(key==GLFW_KEY_F)
+		view=3;
+	if(key==GLFW_KEY_H)
+		view=4;
 
 	if(key==GLFW_KEY_RIGHT && action==GLFW_PRESS && !disable){
+		if(soff==0)
+
 		system("mpg123  -vC sound1.mp3 &");
 		moves++;
 		stmove++;
@@ -302,6 +348,8 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 	else if(key==GLFW_KEY_LEFT && action==GLFW_PRESS && !disable){
 		moves++;
 		stmove++;
+		if(soff==0)
+
 		system("mpg123  -vC sound1.mp3 &");
 
 		if(l8f==0){
@@ -344,6 +392,8 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 	else if(key==GLFW_KEY_UP && action==GLFW_PRESS && !disable){
 		moves++;
 		stmove++;
+		if(soff==0)
+
 		system("mpg123  -vC sound1.mp3 &");
 
 		if(l8f==0)
@@ -386,6 +436,8 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 	if(key==GLFW_KEY_DOWN && action==GLFW_PRESS && !disable){
 		moves++;
 		stmove++;
+		if(soff==0)
+
 		system("mpg123  -vC sound1.mp3 &");
 
 		if(l8f==0){
@@ -437,7 +489,8 @@ void keyboardChar (GLFWwindow* window, unsigned int key)
 			break;
 	}
 }
-
+int lmouse1=0;
+int mouse=0;
 /* Executed when a mouse button is pressed/released */
 void mouseButton (GLFWwindow* window, int button, int action, int mods)
 {
@@ -454,8 +507,60 @@ void mouseButton (GLFWwindow* window, int button, int action, int mods)
 		default:
 			break;
 	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && blo==1) {
+		if(GLFW_PRESS == action){
+			lmouse1 = 1;
+			mouse=1;
+		}
+		if(action==GLFW_RELEASE){
+			lmouse1=0;
+			mouse=0;
+		}
+	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && blo==0) {
+		if(GLFW_PRESS == action){
+			lmouse = 1;
+		}
+		if(action==GLFW_RELEASE)
+			lmouse=0;
+	}
+	if(lmouse==1){
+		double lx;
+		double ly;
+		glfwGetCursorPos(window, &lx, &ly);
+		if(lx>593 && lx<860 && ly>434 && ly<490){
+			enter=1;
+
+		}
+		if(lx>593 && lx<860 && ly>512 && ly<575){
+			pass=1;
+		}
+		
+	}
+	if(mouse==1){
+		double lx;
+		double ly;
+		glfwGetCursorPos(window, &lx, &ly);
+		if(lx>84 && lx<171 && ly>21 && ly<65){
+			if(menu==0)
+			menu=1;
+			else if(menu==1)
+				menu=0;
+		}
+		if(lx>133 && lx<287 && ly>268 && ly<294 && menu==1){
+			if(soff==0)
+			soff=1;
+		else if(soff==1)
+			soff=0;
+		}
+		if(lx>160 && lx<220 && ly>316 && ly<340 && menu==1){
+			flag=9;
+		}
+
+	}
 }
 int dis=0;
+float zoom=1;
 
 /* Executed when window is resized to 'width' and 'height' */
 /* Modify the bounds of the screen here in glm::ortho or Field of View in glm::Perspective */
@@ -488,7 +593,7 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
 
 }
 
-VAO *triangle, *rectangle,*cuboid[10][15],*cub1,*cub2,*circle,*rectangle1,*rect[10][15],*level[7],*cuboid1[10][15],*dcub,*dcu,*circle1,*dcub1,*dcub2,*dcub3,*dcub4,*dcub5;
+VAO *triangle, *rectangle,*cuboid[10][15],*cub1,*cub2,*circle,*rectangle1,*rectangle2,*rect[10][15],*level[7],*cuboid1[10][15],*dcub,*dcu,*circle1,*dcub1,*dcub2,*dcub3,*dcub4,*dcub5;
 
 // Creates the triangle object used in this sample code
 void createTriangle ()
@@ -553,10 +658,21 @@ void createRectangle ()
 		1,1,1
 			// color 1
 	};
+	GLfloat colordisplay1 [] = {
+		0,0,1,
+		0,0,1,
+		0,0,1,
+		0,0,1,
+		0,0,1,
+		0,0,1
+			// color 1
+	};
 
 	// create3DObject creates and returns a handle to a VAO that can be used later
 	rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
 	rectangle1 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, colordisplay, GL_FILL);
+	rectangle2 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, colordisplay1, GL_FILL);
+
 	for(int i=0;i<10;i++){
 		for(int j=0;j<15;j++)
 	rect[i][j] = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
@@ -823,16 +939,44 @@ void createCuboid(){
 				cuboid1[i][j] = create3DObject(GL_TRIANGLES, 36, vertex_buffer_data, color_buffer_data3,GL_LINE);
 
 
-
 		}
 
 	init();
 	level1();
 }
 
-float camera_rotation_angle = 90;
+float camera_rotation_angle = 45;
 float rectangle_rotation = 0;
 
+void mousezoom(GLFWwindow* window, double xoffset, double yoffset)
+{
+	if (yoffset==-1) { 
+		zoom/=1.1; 
+	}
+	else if(yoffset==1){
+		zoom*=1.1; 
+	}
+	if (zoom<=1) {
+		zoom = 1;
+	}
+	if (zoom>=2) {
+		zoom=2;
+	}
+
+	//reshapeWindow(window,1500,800);
+	/*if(xpos-100.0f/zoom<-100)
+		xpos=-8+8.0f/zoom;
+	else if(xpos+100.0f/zoom>100)
+		xpos=100-100.0f/zoom;
+	if(ypos-50.0f/zoom<-50)
+		ypos=-50+50.0f/zoom;
+	else if(ypos+50.0f/zoom>50)
+		ypos=50-50.0f/zoom;
+*/
+	//Matrices.projection = glm::perspective(fov, (GLfloat) fbwidth / (GLfloat) fbheight, 0.1f, 500.0f);
+
+	Matrices.projection = glm::ortho((float)(-100.0f/zoom), (float)(100.0f/zoom), (float)(-50.0f/zoom), (float)(50.0f/zoom), 0.1f, 500.0f);
+}
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
 int a[10][15];
@@ -872,7 +1016,7 @@ int l2tog=0,l2f=0;
 int l2togl=0,l2r=0;
 int l3=0,r3=0;
 int r4=0;
-int blo=0;
+
 
 void level2(){
 	for(int i=0;i<10;i++)
@@ -1118,7 +1262,7 @@ void level9(){
 
 }
 float spo;
-
+int attempts=1;
 int l6=0,r6=0,l7=0,r7=0,r8=0,r9=0;
 void init(){
 	for(int i=0;i<15;i++)
@@ -1138,6 +1282,23 @@ sound=0;
 
 dis=1;
 stmove=0;
+if(flag==1){
+			level1();
+		}
+		if(flag==2)
+			level2();
+		if(flag==3)
+			level3();
+		if(flag==4)
+			level4();
+		if(flag==5)
+			level6();
+		if(flag==6)
+			level7();
+		if(flag==7)
+			level8();
+		if(flag==8)
+			level9();
 
 
 }
@@ -1150,7 +1311,12 @@ glm::vec3 getRGBfromHue (int hue)
   float intp;
   float fracp = modff(hue/60.0, &intp);
   float x = 1.0 - abs((float)((int)intp%2)+fracp-1.0);
+  float y=1;
+  if(hue==100){
+    return glm::vec3(1,1,1);
 
+  }
+else{
   if (hue < 60)
     return glm::vec3(1,x,0);
   else if (hue < 120)
@@ -1165,22 +1331,27 @@ glm::vec3 getRGBfromHue (int hue)
     return glm::vec3(1,0,x);
 
 }
+}
 
 
-void display_string(float x,float y,char *str,float fontScaleValue){
-	glm::vec3 fontColor = glm::vec3(0,0,0);
-	Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0));
-	Matrices.model = glm::mat4(1.0f);
-	glm::mat4 translateText = glm::translate(glm::vec3(x,y,0));
-	glm::mat4 scaleText = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
-	Matrices.model *= (translateText * scaleText);
-	glm::mat4 MVP = Matrices.projection * Matrices.view * Matrices.model;
-	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
-	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
-	GL3Font.font->Render(str);
+void display_string(GLFWwindow *window){
+	double lx;
+	double ly;
+	glfwGetCursorPos(window, &lx, &ly);
+	cout<<lx<<" "<<ly<<'\n';
 
 }
 double utime1;
+double utime4=glfwGetTime();
+int score=0;
+int heli=0;
+void drag (GLFWwindow* window){
+	double lx1;
+	double ly1;
+	glfwGetCursorPos(window, &lx1, &ly1);
+	if(heli==1 && lmouse1==1)
+	camera_rotation_angle-=(lx1-750)/1000;
+	}
 void draw ()
 {
 
@@ -1198,12 +1369,51 @@ void draw ()
 	// Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
 	glm::vec3 up (0, 1, 0);
 
+	//if(zoom<0)
+	//Matrices.view = glm::lookAt(glm::vec3(-30,70,60), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	//Matrices.projection = glm::perspective(0.9f+zoom, (GLfloat) 1500 / (GLfloat) 800, 0.1f, 500.0f);
+	
 
 	if(dis==0)
 	Matrices.view = glm::lookAt(glm::vec3(-30,70,60), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
 	if(dis==1 || blo==0)
 Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); 
 	
+	if(view==0){
+	Matrices.view = glm::lookAt(glm::vec3(-30,70,60), glm::vec3(0,0,0), glm::vec3(0,1,0));
+	Matrices.projection = glm::ortho((float)(-100.0f/zoom), (float)(100.0f/zoom), (float)(-50.0f/zoom), (float)(50.0f/zoom), 0.1f, 500.0f);
+	heli=0;
+
+}
+	if(view==1){
+		heli=0;
+	//Matrices.projection = glm::ortho(-100.0f,100.0f,-50.0f,50.0f,0.1f, 500.0f);
+	//glm::mat4 translateTriangle1 = glm::translate (glm::vec3(-18.0f+posx1+l3+l6+l7, 3.0f+posy1+spo, -6.0f+posz1+r3+r4+r6+r7+r8+r9)); // glTranslatef
+
+	Matrices.projection = glm::perspective(0.9f+0.6f, (GLfloat) 1500 / (GLfloat) 800, 0.1f, 500.0f);
+
+	Matrices.view = glm::lookAt(glm::vec3(-8+posx1+l3+l6+l7,10,-4+posz1+r3+r4+r6+r7+r8+r9), glm::vec3(30,0,10), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+	}
+	if(view==2){
+		heli=0;
+	//Matrices.projection = glm::perspective(0.9f, (GLfloat) 1500 / (GLfloat) 800, 0.1f, 500.0f);
+	Matrices.projection = glm::ortho(-100.0f,100.0f,-50.0f,50.0f,0.1f, 500.0f);
+	
+	Matrices.view = glm::lookAt(glm::vec3(0,90,0), glm::vec3(0,0,0), glm::vec3(0,0,-1)); 
+	}
+	if(view==3){
+		heli=0;
+	Matrices.projection = glm::perspective(0.9f+0.3f, (GLfloat) 1500 / (GLfloat) 800, 0.1f, 500.0f);
+	Matrices.view = glm::lookAt(glm::vec3(-33+posx1+l3+l6+l7,24,-8+posz1+r3+r4+r6+r7+r8+r9), glm::vec3(30,0,10), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	} 
+    if(view==4){
+    	heli=1;
+	Matrices.projection = glm::ortho(-100.0f,100.0f,-50.0f,50.0f,0.1f, 500.0f);
+
+	Matrices.view = glm::lookAt(glm::vec3(-30*cos(camera_rotation_angle*M_PI/180),70,60*sin(camera_rotation_angle*M_PI/180)), glm::vec3(0,0,0), glm::vec3(0,1,0));
+	} 
 	// Compute ViewProject matrix as view/camera might not be changed for this frame (basic scenario)
 	//  Don't change unless you are sure!!
 	glm::mat4 VP = Matrices.projection * Matrices.view;
@@ -1216,9 +1426,12 @@ Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)
 	// Compute Camera matrix (view)
 	// Matrices.view = glm::lookAt( eye, target, up ); // Rotating Camera for 3D
 	//  Don't change unless you are sure!!
-	if(blo==0){
-
-		float fontScaleValue = 36;
+	if(flag==9){
+		for(int i=0;i<10;i++)
+			for(int j=0;j<15;j++)
+				a[i][j]=0;
+moves=0;
+float fontScaleValue = 36;
 int fontScale=150;
 	glm::vec3 fontColor1= getRGBfromHue(fontScale);
 	glUseProgram(fontProgramID);
@@ -1227,13 +1440,51 @@ int fontScale=150;
 	char level_strl[30],level_strl1[30];
 	char level_strl2[30],level_strl3[30];
 
-	sprintf(level_strl,"BLOROXZ");
+	sprintf(level_strl,"YOU WIN");
+glUseProgram(fontProgramID);
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText = glm::translate(glm::vec3(-40,4,0));
+	glm::mat4 scaleText = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText * scaleText);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor1[0]);
+	GL3Font.font->Render(level_strl);
+	dis=1;
+	ent=0;
+	enter=0;
+	pass=0;
+	l3=0,r3=0,l6=0,r6=0,l7=0,r7=0,r8=0,r9=0;
+	double ctime=glfwGetTime();
+	if(ctime-utime1>3){
+	//	re=1;
+		flag=1;
+		blo=0;
+		init();
+
+	}
+		
+
+	}
+
+	if(blo==0){
+		double ctime4=glfwGetTime();
+		float fontScaleValue = 36;
+int fontScale=150;
+	glm::vec3 fontColor1= getRGBfromHue(fontScale);
+	glUseProgram(programID);
+
+
+	char level_strl[30],level_strl1[30];
+	char level_strl2[30],level_strl3[30];
+	sprintf(level_strl,"BLOXORZ");
 	sprintf(level_strl1,"START NEW GAME");
 	sprintf(level_strl2,"LOAD STAGE");
 
-
-
-
+	glUseProgram(fontProgramID);
 
 
 Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); 
@@ -1319,16 +1570,146 @@ glm::mat4 translateTriangle3 = glm::translate (glm::vec3(-3,-18,0)); // glTransl
 	GL3Font.font->Render(level_strl2);
 
 
-		
 
 	//double ctime=glfwGetTime();
-	if(ent==1){
+	if(enter==1){
 		blo=1;
 		
 		utime=glfwGetTime();
 		utime1=glfwGetTime();
 
 	}
+	if(ent==1){
+			//cout<<"yes";
+		if(ab[0]=='1'){
+				flag=1;
+				level1();
+				blo=1;
+		utime1=glfwGetTime();
+		utime=glfwGetTime();
+
+			}
+			if(ab[0]=='2'){
+				flag=2;
+				level2();
+				blo=1;
+		utime1=glfwGetTime();
+		utime=glfwGetTime();
+
+			}
+			if(ab[0]=='3'){
+				flag=3;
+				level3();
+				blo=1;
+		utime1=glfwGetTime();
+		utime=glfwGetTime();
+		l3=0;
+			r3=18;
+
+			}
+			if(ab[0]=='4'){
+				flag=4;
+				level4();
+				blo=1;
+		utime1=glfwGetTime();
+		utime=glfwGetTime();
+		l3=0;
+			r3=18;
+
+
+			}
+			if(ab[0]=='5'){
+				flag=5;
+				level6();
+				blo=1;
+		utime1=glfwGetTime();
+		utime=glfwGetTime();
+		l3=-6;
+			r3=0;
+
+
+			}
+			if(ab[0]=='6'){
+				flag=6;
+				level7();
+				blo=1;
+		utime1=glfwGetTime();
+		utime=glfwGetTime();
+		l3=0;
+			r3=18;
+			l6=-6;
+			r6=-18;
+
+			}
+			if(ab[0]=='7'){
+				flag=7;
+				level8();
+				blo=1;
+		utime1=glfwGetTime();
+		utime=glfwGetTime();
+		l3=0;
+			r3=18;
+			l6=-6;
+			r6=-18;
+			l7=6;
+			r7=6;
+
+			}
+			if(ab[0]=='8'){
+				flag=8;
+				level9();
+				blo=1;
+		utime1=glfwGetTime();
+		utime=glfwGetTime();
+		l3=0;
+			r3=18;
+l6=0;
+			r6=-12;
+
+			}
+
+		}
+
+
+	}
+
+		
+	if(pass==1 && blo==0){
+	glUseProgram(programID);
+
+		Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(33,-22,0)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(10.0f, 0.5f, 1.0f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(rectangle1);
+
+				float fontScaleValue = 12 ;
+int fontScale=280;
+	glm::vec3 fontColor= getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText = glm::translate(glm::vec3(30,-20,0));
+	glm::mat4 scaleText = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText * scaleText);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
+	GL3Font.font->Render(ab);
+				
+				
 
 	}
 	if(dis==0 && blo==1){
@@ -1362,6 +1743,198 @@ Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)
 	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
 	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
 	GL3Font.font->Render(level_strl);
+
+
+
+
+	 fontScaleValue = 12 ;
+ fontScale=280;
+	glm::vec3 fontColor3= getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+
+	char level_strl3[30];
+	sprintf(level_strl3,"SCORE: %d",score);
+
+
+
+
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText4 = glm::translate(glm::vec3(-68,42,0));
+	glm::mat4 scaleText4 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText4 * scaleText4);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor3[0]);
+	GL3Font.font->Render(level_strl3);
+
+glUseProgram(programID);
+	Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(-83,44.5,0)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(5.0f, 2.8f, 1.0f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(rectangle2);
+
+
+	fontScaleValue = 8 ;
+ fontScale=100;
+	glm::vec3 fontColor4= getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+
+	char level_strl4[30];
+	sprintf(level_strl4,"MENU");
+
+
+
+
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText5 = glm::translate(glm::vec3(-88,43,0));
+	glm::mat4 scaleText5 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText5 * scaleText5);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor4[0]);
+	GL3Font.font->Render(level_strl4);
+	if(menu==1){
+		//char level_strl5[30];
+		glUseProgram(programID);
+	Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle1 = glm::translate (glm::vec3(-73,6,0)); // glTranslatef
+				glm::mat4 rotateTriangle1 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle1 = glm::scale (glm::vec3(15.0f, 11.8f, 1.0f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform1 = translateTriangle1 * rotateTriangle1*scaleTriangle1;
+				Matrices.model *= triangleTransform1; 
+				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(rectangle);
+fontScaleValue = 6 ;
+ fontScale=100;
+	glm::vec3 fontColor4= getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+
+	char level_strl4[30];
+
+	sprintf(level_strl4,"TOGGLE SOUND");
+
+
+
+
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText5 = glm::translate(glm::vec3(-83,14,0));
+	glm::mat4 scaleText5 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText5 * scaleText5);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor4[0]);
+	GL3Font.font->Render(level_strl4);
+
+
+fontScaleValue = 6 ;
+ fontScale=100;
+	glm::vec3 fontColor5= getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+
+	char level_strl5[30];
+	sprintf(level_strl5,"QUIT");
+
+
+
+
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText6 = glm::translate(glm::vec3(-78,8,0));
+	glm::mat4 scaleText6 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText6 * scaleText6);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor5[0]);
+	GL3Font.font->Render(level_strl5);
+
+
+	fontScaleValue = 6 ;
+ fontScale=100;
+	glm::vec3 fontColor6= getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+
+	char level_strl6[30];
+	sprintf(level_strl6,"LEVEL:%d",flag);
+
+
+
+
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText7 = glm::translate(glm::vec3(-81,2,0));
+	glm::mat4 scaleText7 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText7 * scaleText7);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor6[0]);
+	GL3Font.font->Render(level_strl6);
+
+
+	fontScaleValue = 6 ;
+ fontScale=100;
+	glm::vec3 fontColor7= getRGBfromHue(fontScale);
+	glUseProgram(fontProgramID);
+
+
+	char level_strl7[30];
+	sprintf(level_strl7,"ATTEMPTS:%d",attempts);
+
+
+
+
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+	// Transform the text
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText8 = glm::translate(glm::vec3(-81,-4,0));
+	glm::mat4 scaleText8 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText8 * scaleText8);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor7[0]);
+	GL3Font.font->Render(level_strl7);
+
+
+	}
+	
 
 	}
 	
@@ -1399,10 +1972,8 @@ float fontScaleValue = 36 ;
 	// send font's MVP and font color to fond shaders
 	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
 	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
+	if(flag<9)
 	GL3Font.font->Render(level_str);
-
-
-
 	}
 	else if(dis==0 && blo==1){
 	glUseProgram (programID);
@@ -1542,8 +2113,9 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 
 	draw3DObject(cub2);
 	if(a[r1][l1]==0 || a[r2][l2]==0 || r1<0 ||l1<0||r2<0||l2<0){
+	//Matrices.projection = glm::ortho(-100.0f,100.0f,-50.0f,50.0f,0.1f, 500.0f);
+		if(soff==0)
 		system("mpg123  -vC star.mp3 &");
-
 		double ctime=glfwGetTime();
 		if(ctime-utime>0.05){
 			utime=glfwGetTime();
@@ -1552,6 +2124,10 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 			disable=1;
 		}
 		if(posy1<-15){
+	view=0;
+		attempts++;
+
+			score-=10;
 			moves-=stmove;
 		init();
 		if(flag==1){
@@ -1571,12 +2147,17 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 			level8();
 		if(flag==8)
 			level9();
+		if(flag==9)
+			utime1=glfwGetTime();
 	}
 
 	}
 	
 	if(a[r1][l1]==4 && a[r2][l2]==4){
+		attempts=1;
 		if(sound==0){
+		if(soff==0)
+
 		system("mpg123  -vC finish.mp3 &");
 		sound=1;
 	}
@@ -1589,6 +2170,7 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 		if(posy1<-20){
 		init();
 		flag++;
+		score+=100;
 		if(flag==2)
 		level2();
 		if(flag==3){
@@ -1617,7 +2199,11 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 			level9();
 			r9=-6;
 		}
+		if(flag==1)
+			level1();
 		}
+		if(flag==9)
+			utime1=glfwGetTime();
 	}
 	if(flag==4){
 		for(int i=1;i<3;i++)
@@ -1628,7 +2214,6 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 				a[i][j]=6;
 		a[8][13]=5;
 	
-
 
 	}
 	
@@ -1663,6 +2248,8 @@ glm::mat4 translateTriangle2 = glm::translate (glm::vec3(0.0f+(8+1)*6-30, 0.0f, 
 
 		if(a[r1][l1]==2 || a[r2][l2]==2){
 		if(a[6][4]==0 && l2tog==0){
+		if(soff==0)
+
 		system("mpg123  -vC star.mp3 &");
 
 			a[6][4]=1;
@@ -1670,6 +2257,8 @@ glm::mat4 translateTriangle2 = glm::translate (glm::vec3(0.0f+(8+1)*6-30, 0.0f, 
 			l2f=1;
 		}
 		else if(a[6][4]==1 && l2tog==1){
+		if(soff==0)
+
 		system("mpg123  -vC star.mp3 &");
 
 			a[6][4]=0;
@@ -1685,6 +2274,8 @@ glm::mat4 translateTriangle2 = glm::translate (glm::vec3(0.0f+(8+1)*6-30, 0.0f, 
 		}
 		if(a[r1][l1]==3 && a[r2][l2]==3){
 		if(a[6][10]==0 && l2togl==0){
+		if(soff==0)
+
 		system("mpg123  -vC star.mp3 &");
 
 			a[6][10]=1;
@@ -1692,6 +2283,8 @@ glm::mat4 translateTriangle2 = glm::translate (glm::vec3(0.0f+(8+1)*6-30, 0.0f, 
 			l2r=1;
 		}
 		else if(a[6][10]==1  && l2togl==1){
+		if(soff==0)
+
 		system("mpg123  -vC star.mp3 &");
 
 			a[6][10]=0;
@@ -1869,7 +2462,8 @@ GLFWwindow* initGLFW (int width, int height)
 	glfwSetCharCallback(window, keyboardChar);  // simpler specific character handling
 
 	/* Register function to handle mouse click */
-	glfwSetMouseButtonCallback(window, mouseButton);  // mouse button clicks
+	glfwSetMouseButtonCallback(window, mouseButton); 
+	glfwSetScrollCallback(window, mousezoom); // mouse button clicks
 
 	return window;
 }
@@ -1952,10 +2546,12 @@ int main (int argc, char** argv)
 
 		// Swap Frame Buffer in double buffering
 		glfwSwapBuffers(window);
+ display_string(window);
 
 		// Poll for Keyboard and mouse events
 		glfwPollEvents();
-
+		if(heli==1  && lmouse1==1)
+			drag(window);
 		// Control based on time (Time based transformation like 5 degrees rotation every 0.5s)
 		current_time = glfwGetTime(); // Time in seconds
 		if ((current_time - last_update_time) >= 0.5) { // atleast 0.5s elapsed since last frame
