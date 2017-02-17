@@ -209,6 +209,7 @@ void draw3DObject (struct VAO* vao)
 /**************************
  * Customizable functions *
  **************************/
+int l6=0,r6=0,l7=0,r7=0,r8=0,r9=0;
 
 float triangle_rot_dir = 1;
 float rectangle_rot_dir = 1;
@@ -229,7 +230,8 @@ int pass=0;
 int view=0;
 int menu=0;
 int soff=0;
-
+int l3=0,r3=0;
+int r4=0;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
 void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -491,6 +493,9 @@ void keyboardChar (GLFWwindow* window, unsigned int key)
 }
 int lmouse1=0;
 int mouse=0;
+int togtext=0;
+double lxg;
+		double lyg;
 /* Executed when a mouse button is pressed/released */
 void mouseButton (GLFWwindow* window, int button, int action, int mods)
 {
@@ -524,6 +529,10 @@ void mouseButton (GLFWwindow* window, int button, int action, int mods)
 		if(action==GLFW_RELEASE)
 			lmouse=0;
 	}
+	if(lmouse1==1){
+		glfwGetCursorPos(window, &lxg, &lyg);
+
+	}
 	if(lmouse==1){
 		double lx;
 		double ly;
@@ -534,6 +543,12 @@ void mouseButton (GLFWwindow* window, int button, int action, int mods)
 		}
 		if(lx>593 && lx<860 && ly>512 && ly<575){
 			pass=1;
+		}
+		if(lx>593 && lx<860 && ly>596 && ly<651){
+			togtext=1;
+		}
+		if(lx>264 && lx<441 && ly>593 && ly<652){
+			togtext=0;
 		}
 		
 	}
@@ -556,9 +571,189 @@ void mouseButton (GLFWwindow* window, int button, int action, int mods)
 		if(lx>160 && lx<220 && ly>316 && ly<340 && menu==1){
 			flag=9;
 		}
+		//-18.0f+posx1+l3+l6+l7, 3.0f+posy1+spo, -6.0f+posz1+r3+r4+r6+r7+r8+r9)); // glTra
+		if(lx>1371 && lx<1404 && ly>625 && ly<656){
+			if(soff==0)
+
+		system("mpg123  -vC sound1.mp3 &");
+		moves++;
+		stmove++;
+		if(l8f==0){
+
+		if(posx1==posx2 && posy2>posy1){
+			posx1+=6;
+			posx2+=12;
+			posy2-=6;
+
+		}
+
+		else if(posx1==posx2 && posy1>posy2){
+			posx1+=12;
+			posx2+=6;
+			posy1-=6;
+		}
+		else if(posx1>posx2 && posy1==posy2){
+			posx1+=6;
+			posx2+=12;
+			posy2+=6;
+		}
+		else if(posx2>posx1 && posy1==posy2){
+			posx2+=6;
+			posx1+=12;
+			posy1+=6;
+		}
+		else if(posx2==posx1 && posy1==posy2){
+			posx1+=6;
+			posx2+=6;
+			//posz2+=6;
+		}
+	}
+	else if(l8f==1){
+		posx2+=6;
+	}
+	else if(l8f==2){
+		posx1+=6;
+	}
+		}
+
+		else if(lx>1225 && lx<1254 && ly>625 && ly<656){
+			moves++;
+		stmove++;
+		if(soff==0)
+
+		system("mpg123  -vC sound1.mp3 &");
+
+		if(l8f==0){
+
+		if(posx1==posx2 && posy2>posy1){
+			posx1-=6;
+			posx2-=12;
+			posy2-=6;
+
+		}
+
+		else if(posx1==posx2 && posy1>posy2){
+			posx1-=12;
+			posx2-=6;
+			posy1-=6;
+		}
+		else if(posx1>posx2 && posy1==posy2){
+			posx1-=12;
+			posx2-=6;
+			posy1+=6;
+		}
+		else if(posx2>posx1 && posy1==posy2){
+			posx1-=6;
+			posx2-=12;
+			posy2+=6;
+		}
+		else if(posx2==posx1 && posy1==posy2){
+			posx1-=6;
+			posx2-=6;
+			//posz2+=6;
+		}
+	}
+	else if(l8f==1){
+		posx2-=6;
+	}
+	else if(l8f==2)
+		posx1-=6;
+	}
+
+
+else if(lx>1300 && lx<1327 && ly>544 && ly<573 ){
+	moves++;
+		stmove++;
+		if(soff==0)
+
+		system("mpg123  -vC sound1.mp3 &");
+
+		if(l8f==0)
+		{
+		if(posz1==posz2 && posy2>posy1){
+			posz1-=6;
+			posz2-=12;
+			posy2-=6;
+
+		}
+
+		else if(posz1==posz2 && posy1>posy2){
+			posz1-=12;
+			posz2-=6;
+			posy1-=6;
+		}
+		else if(posz1>posz2 && posy1==posy2){
+			posz1-=12;
+			posz2-=6;
+			posy1+=6;
+		}
+		else if(posz2>posz1 && posy1==posy2){
+			posz1-=6;
+			posz2-=12;
+			posy2+=6;
+		}
+		else if(posz2==posz1 && posy1==posy2){
+			posz1-=6;
+			posz2-=6;
+			//posz2+=6;
+		}
+			}
+			else if(l8f==1){
+				posz2-=6;
+			}
+			else if(l8f==2)
+				posz1-=6;
+}
+
+
+else if(lx>1300 && lx<1327 && ly>700 && ly<734){
+	moves++;
+		stmove++;
+		if(soff==0)
+
+		system("mpg123  -vC sound1.mp3 &");
+
+		if(l8f==0){
+		if(posz1==posz2 && posy2>posy1){
+			posz1+=6;
+			posz2+=12;
+			posy2-=6;
+
+		}
+
+		else if(posz1==posz2 && posy1>posy2){
+			posz1+=12;
+			posz2+=6;
+			posy1-=6;
+		}
+		else if(posz1>posz2 && posy1==posy2){
+			posz1+=6;
+			posz2+=12;
+			posy2+=6;
+		}
+		else if(posz2>posz1 && posy1==posy2){
+			posz2+=6;
+			posz1+=12;
+			posy1+=6;
+		}
+		else if(posz2==posz1 && posy1==posy2){
+			posz1+=6;
+			posz2+=6;
+			//posz2+=6;
+		}
+	}
+	else if(l8f==1)
+		posz2+=6;
+	else if(l8f==2)
+		posz1+=6;
+
+}
+
+
+		}
 
 	}
-}
+
 int dis=0;
 float zoom=1;
 
@@ -593,7 +788,7 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
 
 }
 
-VAO *triangle, *rectangle,*cuboid[10][15],*cub1,*cub2,*circle,*rectangle1,*rectangle2,*rect[10][15],*level[7],*cuboid1[10][15],*dcub,*dcu,*circle1,*dcub1,*dcub2,*dcub3,*dcub4,*dcub5;
+VAO *triangle,*triangle1,*triangle2,*triangle3, *rectangle,*cuboid[10][15],*cub1,*cub2,*circle,*rectangle1,*rectangle2,*rect[10][15],*level[7],*cuboid1[10][15],*dcub,*dcu,*circle1,*dcub1,*dcub2,*dcub3,*dcub4,*dcub5;
 
 // Creates the triangle object used in this sample code
 void createTriangle ()
@@ -614,7 +809,13 @@ void createTriangle ()
 	};
 
 	// create3DObject creates and returns a handle to a VAO that can be used later
-	triangle = create3DObject(GL_TRIANGLES, 3, vertex_buffer_data, color_buffer_data, GL_LINE);
+	triangle = create3DObject(GL_TRIANGLES, 3, vertex_buffer_data, color_buffer_data, GL_FILL);
+	triangle1 = create3DObject(GL_TRIANGLES, 3, vertex_buffer_data, color_buffer_data, GL_FILL);
+
+	triangle2 = create3DObject(GL_TRIANGLES, 3, vertex_buffer_data, color_buffer_data, GL_FILL);
+
+	triangle3 = create3DObject(GL_TRIANGLES, 3, vertex_buffer_data, color_buffer_data, GL_FILL);
+
 }
 
 // Creates the rectangle object used in this sample code
@@ -1014,8 +1215,6 @@ void level1(){
 }
 int l2tog=0,l2f=0;
 int l2togl=0,l2r=0;
-int l3=0,r3=0;
-int r4=0;
 
 
 void level2(){
@@ -1263,7 +1462,6 @@ void level9(){
 }
 float spo;
 int attempts=1;
-int l6=0,r6=0,l7=0,r7=0,r8=0,r9=0;
 void init(){
 	for(int i=0;i<15;i++)
 		for(int j=0;j<10;j++)
@@ -1341,6 +1539,7 @@ void display_string(GLFWwindow *window){
 	cout<<lx<<" "<<ly<<'\n';
 
 }
+float camera_rotation_angle1=0;
 double utime1;
 double utime4=glfwGetTime();
 int score=0;
@@ -1349,13 +1548,16 @@ void drag (GLFWwindow* window){
 	double lx1;
 	double ly1;
 	glfwGetCursorPos(window, &lx1, &ly1);
-	if(heli==1 && lmouse1==1)
-	camera_rotation_angle-=(lx1-750)/1000;
+	if(heli==1 && lmouse1==1){
+	camera_rotation_angle-=(lx1-lxg)/800;
+	camera_rotation_angle1-=(lx1-lxg)/800;
+}
 	}
 void draw ()
 {
 
 	// clear the color and depth in the frame buffer
+	
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// use the loaded shader program
@@ -1373,7 +1575,11 @@ void draw ()
 	//Matrices.view = glm::lookAt(glm::vec3(-30,70,60), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
 
 	//Matrices.projection = glm::perspective(0.9f+zoom, (GLfloat) 1500 / (GLfloat) 800, 0.1f, 500.0f);
-	
+	if(attempts==4){
+		flag=9;
+		utime1=glfwGetTime();
+
+	}
 
 	if(dis==0)
 	Matrices.view = glm::lookAt(glm::vec3(-30,70,60), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
@@ -1387,30 +1593,30 @@ Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)
 
 }
 	if(view==1){
-		heli=0;
+		heli=1;
 	//Matrices.projection = glm::ortho(-100.0f,100.0f,-50.0f,50.0f,0.1f, 500.0f);
 	//glm::mat4 translateTriangle1 = glm::translate (glm::vec3(-18.0f+posx1+l3+l6+l7, 3.0f+posy1+spo, -6.0f+posz1+r3+r4+r6+r7+r8+r9)); // glTranslatef
 
 	Matrices.projection = glm::perspective(0.9f+0.6f, (GLfloat) 1500 / (GLfloat) 800, 0.1f, 500.0f);
 
-	Matrices.view = glm::lookAt(glm::vec3(-8+posx1+l3+l6+l7,10,-4+posz1+r3+r4+r6+r7+r8+r9), glm::vec3(30,0,10), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+	Matrices.view = glm::lookAt(glm::vec3(-8+posx1+l3+l6+l7,15,-4+posz1+r3+r4+r6+r7+r8+r9), glm::vec3(30,0,10), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
 	}
 	if(view==2){
-		heli=0;
+		heli=1;
 	//Matrices.projection = glm::perspective(0.9f, (GLfloat) 1500 / (GLfloat) 800, 0.1f, 500.0f);
 	Matrices.projection = glm::ortho(-100.0f,100.0f,-50.0f,50.0f,0.1f, 500.0f);
 	
 	Matrices.view = glm::lookAt(glm::vec3(0,90,0), glm::vec3(0,0,0), glm::vec3(0,0,-1)); 
 	}
 	if(view==3){
-		heli=0;
+		heli=1;
 	Matrices.projection = glm::perspective(0.9f+0.3f, (GLfloat) 1500 / (GLfloat) 800, 0.1f, 500.0f);
 	Matrices.view = glm::lookAt(glm::vec3(-33+posx1+l3+l6+l7,24,-8+posz1+r3+r4+r6+r7+r8+r9), glm::vec3(30,0,10), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
 
 	} 
     if(view==4){
     	heli=1;
-	Matrices.projection = glm::ortho(-100.0f,100.0f,-50.0f,50.0f,0.1f, 500.0f);
+	Matrices.projection = glm::ortho(-100.0f/zoom,100.0f/zoom,-50.0f/zoom,50.0f/zoom,0.1f, 500.0f);
 
 	Matrices.view = glm::lookAt(glm::vec3(-30*cos(camera_rotation_angle*M_PI/180),70,60*sin(camera_rotation_angle*M_PI/180)), glm::vec3(0,0,0), glm::vec3(0,1,0));
 	} 
@@ -1427,10 +1633,12 @@ Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)
 	// Matrices.view = glm::lookAt( eye, target, up ); // Rotating Camera for 3D
 	//  Don't change unless you are sure!!
 	if(flag==9){
+		
 		for(int i=0;i<10;i++)
 			for(int j=0;j<15;j++)
 				a[i][j]=0;
 moves=0;
+score=0;
 float fontScaleValue = 36;
 int fontScale=150;
 	glm::vec3 fontColor1= getRGBfromHue(fontScale);
@@ -1439,8 +1647,16 @@ int fontScale=150;
 
 	char level_strl[30],level_strl1[30];
 	char level_strl2[30],level_strl3[30];
-
+	if(attempts<=3)
 	sprintf(level_strl,"YOU WIN");
+	if(attempts>3){
+Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); 
+	//attempts=5;
+	sprintf(level_strl,"YOU LOOSE");
+	attempts=5;
+}
+
+
 glUseProgram(fontProgramID);
 
 	// Transform the text
@@ -1479,10 +1695,16 @@ int fontScale=150;
 
 
 	char level_strl[30],level_strl1[30];
-	char level_strl2[30],level_strl3[30];
+	char level_strl2[30],level_strl3[30],level_strl4[100],level_strl5[30];
 	sprintf(level_strl,"BLOXORZ");
 	sprintf(level_strl1,"START NEW GAME");
 	sprintf(level_strl2,"LOAD STAGE");
+	sprintf(level_strl3,"CREDITS");
+	sprintf(level_strl4,"ALL GRAPHICS,AUDIO,ACTIONSCRIPT,PUZZLES IN BLOXORZ CREATED BY VISHAL REDDY,IIIT-H ON 14th FEBRUARY");
+	//sprintf(level_strl4,"ALL  FEBRUARY");
+	sprintf(level_strl5,"BACK");
+
+
 
 	glUseProgram(fontProgramID);
 
@@ -1514,6 +1736,7 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(-3,-8,0)); // glTransla
 				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
 
 				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+				if(!togtext)
 
 				draw3DObject(rectangle1);
 
@@ -1529,7 +1752,37 @@ glm::mat4 translateTriangle3 = glm::translate (glm::vec3(-3,-18,0)); // glTransl
 				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
 
 				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+				if(!togtext)
+				draw3DObject(rectangle1);
 
+				Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle4 = glm::translate (glm::vec3(-3,-28,0)); // glTranslatef
+				glm::mat4 rotateTriangle4 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle4 = glm::scale (glm::vec3(15.0f, 4.0f, 1.0f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform4 = translateTriangle4 * rotateTriangle4*scaleTriangle4;
+				Matrices.model *= triangleTransform4; 
+				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				if(!togtext)
+				draw3DObject(rectangle1);
+
+			Matrices.model = glm::mat4(1.0f);
+					
+glm::mat4 translateTriangle5 = glm::translate (glm::vec3(-53,-28,0)); // glTranslatef
+				glm::mat4 rotateTriangle5 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle5 = glm::scale (glm::vec3(10.0f, 4.0f, 1.0f)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform5 = translateTriangle5 * rotateTriangle5*scaleTriangle5;
+				Matrices.model *= triangleTransform5; 
+				MVP = Matrices.projection * Matrices.view * Matrices.model; // MVP = p * V * M
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				if(togtext)
 				draw3DObject(rectangle1);
 	glUseProgram(fontProgramID);
 
@@ -1555,6 +1808,7 @@ glm::mat4 translateTriangle3 = glm::translate (glm::vec3(-3,-18,0)); // glTransl
 	// send font's MVP and font color to fond shaders
 	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
 	glUniform3fv(GL3Font.fontColorID, 1, &fontColor[0]);
+	if(!togtext)
 	GL3Font.font->Render(level_strl1);
 
 	glm::vec3 fontColor2= getRGBfromHue(fontScale1);
@@ -1567,9 +1821,54 @@ glm::mat4 translateTriangle3 = glm::translate (glm::vec3(-3,-18,0)); // glTransl
 	// send font's MVP and font color to fond shaders
 	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
 	glUniform3fv(GL3Font.fontColorID, 1, &fontColor2[0]);
+	if(!togtext)
 	GL3Font.font->Render(level_strl2);
 
 
+	
+
+	glm::vec3 fontColor3= getRGBfromHue(fontScale1);
+
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText3 = glm::translate(glm::vec3(-15,-30,0));
+	glm::mat4 scaleText3 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText3 * scaleText3);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor3[0]);
+	if(!togtext)
+	GL3Font.font->Render(level_strl3);
+fontScale1=100;
+	fontScaleValue=6;
+glm::vec3 fontColor4= getRGBfromHue(fontScale1);
+
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText4 = glm::translate(glm::vec3(-85,-15,0));
+	glm::mat4 scaleText4 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText4 * scaleText4);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor4[0]);
+	if(togtext)
+	GL3Font.font->Render(level_strl4);
+
+
+fontScale1=0;
+	fontScaleValue=6;
+glm::vec3 fontColor5= getRGBfromHue(fontScale1);
+
+	Matrices.model = glm::mat4(1.0f);
+	glm::mat4 translateText5 = glm::translate(glm::vec3(-58,-29.5,0));
+	glm::mat4 scaleText5 = glm::scale(glm::vec3(fontScaleValue,fontScaleValue,fontScaleValue));
+	Matrices.model *= (translateText5 * scaleText5);
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+	// send font's MVP and font color to fond shaders
+	glUniformMatrix4fv(GL3Font.fontMatrixID, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(GL3Font.fontColorID, 1, &fontColor5[0]);
+	if(togtext)
+	GL3Font.font->Render(level_strl5);
 
 	//double ctime=glfwGetTime();
 	if(enter==1){
@@ -2216,7 +2515,66 @@ glm::mat4 translateTriangle1 = glm::translate (glm::vec3(0.0f+(j+1)*6-30, 0.0f+p
 	
 
 	}
-	
+	Matrices.model = glm::mat4(1.0f);
+
+glm::mat4 translateTriangle11 = glm::translate (glm::vec3(75,-20 ,0 )); // glTranslatef
+				glm::mat4 rotateTriangle11 = glm::rotate((float)(0*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle11 = glm::scale (glm::vec3(2, 2, 1)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform11 = translateTriangle11* rotateTriangle11*scaleTriangle11;
+				Matrices.model *= triangleTransform11; 
+				//MVP = VP * Matrices.model; // MVP = p * V * M
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(triangle);
+
+				Matrices.model = glm::mat4(1.0f);
+
+glm::mat4 translateTriangle12 = glm::translate (glm::vec3(85,-30 ,0 )); // glTranslatef
+				glm::mat4 rotateTriangle12 = glm::rotate((float)(270*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle12 = glm::scale (glm::vec3(2, 2, 1)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform12 = translateTriangle12* rotateTriangle12*scaleTriangle12;
+				Matrices.model *= triangleTransform12; 
+				//MVP = VP * Matrices.model; // MVP = p * V * M
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(triangle1);
+
+				Matrices.model = glm::mat4(1.0f);
+
+glm::mat4 translateTriangle13 = glm::translate (glm::vec3(75,-40 ,0 )); // glTranslatef
+				glm::mat4 rotateTriangle13 = glm::rotate((float)(180*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle13 = glm::scale (glm::vec3(2, 2, 1)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform13 = translateTriangle13* rotateTriangle13*scaleTriangle13;
+				Matrices.model *= triangleTransform13; 
+				//MVP = VP * Matrices.model; // MVP = p * V * M
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(triangle2);
+
+				Matrices.model = glm::mat4(1.0f);
+
+glm::mat4 translateTriangle14 = glm::translate (glm::vec3(65,-30 ,0 )); // glTranslatef
+				glm::mat4 rotateTriangle14 = glm::rotate((float)(90*M_PI/180.0f), glm::vec3(0,0,1));
+				glm::mat4 scaleTriangle14 = glm::scale (glm::vec3(2, 2, 1)); // glTranslatef
+				// rotate about vector (1,0,0)
+				glm::mat4 triangleTransform14 = translateTriangle14* rotateTriangle14*scaleTriangle14;
+				Matrices.model *= triangleTransform14; 
+				//MVP = VP * Matrices.model; // MVP = p * V * M
+	MVP = Matrices.projection * Matrices.view * Matrices.model;
+
+				glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+				draw3DObject(triangle3);
+
 	if(flag==2){
 		Matrices.model = glm::mat4(1.0f);
 
